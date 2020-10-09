@@ -1,0 +1,41 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "Python: Flask (no debugger mode)",
+            "type": "python",
+            "request": "launch",
+            "module": "flask",
+            "env": {
+                "FLASK_APP": "pallets.py",
+                "FLASK_RUN_PORT": "9001"
+            },
+            "args": [
+                "run",
+                "--no-debugger",
+                "--no-reload"
+            ],
+            "jinja": true
+        },
+        {
+            "name": "Python: Flask (development mode)",
+            "type": "python",
+            "request": "launch",
+            "module": "flask",
+            "env": {
+                "FLASK_APP": "pallets.py",
+                "FLASK_ENV": "development",
+                "FLASK_DEBUG": "1",
+                "FLASK_RUN_PORT": "9001"
+            },
+            "args": [
+                "run"
+            ],
+            "jinja": true
+        }
+    ]
+}
