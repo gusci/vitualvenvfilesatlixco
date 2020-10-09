@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% extends "secondMenu.html" %}
+{% block head %}
+    <link href="../static/css/addPackingListInfo.css" rel="stylesheet">
+    <script src="../static/js/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="../static/js/jquery.fileupload.js"></script>
+    <script src="../static/js/addPackingListInfo.js"></script>
+    </head>
+    <body>
+{% endblock %}
+{% block content %}
+    {% include "flash.html"%}
+    <div class="row">
+        <div>
+            <br><br>
+            <center>
+                <h3>Agregar Información de Packing List de Entrada</h3>
+            </center>
+             <br>
+        </div>
+        <br>
+        <input type="hidden" class="form-control" id="filexlsxId">
+    </div>
+    <div class="row">
+        <div class="col-sm-offset-1 col-sm-10">
+            <form role="form" onsubmit="return mySubmitFunction(event)">
+                <div class="form-group row">
+                    <div class="col-sm-4">
+                        <label for="message-text" class="control-label">Documento transporte:</label>
+                        <input type="text" class="form-control" id="transporte" name="transporte" maxlength="20" required>
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="message-text" class="control-label">Fecha del documento:</label>
+                        <input type="date" class="form-control" id="fecha" name="fecha" required min="2018-01-01">
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="message-text" class="control-label">Peso bruto total (KG):</label>
+                        <input type="number" class="form-control" id="peso" name="peso" min=".001" step="any" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-4">
+                        <label for="message-text" class="control-label">Volumen (M3):</label>
+                        <input type="number" class="form-control" id="volumen" name="volumen" min=".001" step="any" required>
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="message-text" class="control-label">Cantidad de bultos documentados (UN):</label>
+                        <input type="number" class="form-control" id="unidades" name="unidades" min="1" max="999" step="any" required>
+                    </div>
+                    <div class="col-sm-4">
+                        <br>
+                        <button class="primary-button btn-lg" onclick="AddPrincipalInfo()">
+                            &nbsp; &nbsp; &nbsp; Aceptar &nbsp; &nbsp; &nbsp;
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <hr>
+        </div>
+    </div>
+    <div class="row">
+        <div>
+            <br><br>
+            <center>
+                <h5 id="BtnFileLabel">Agregar información de Packing List de entrada cargando un archivo pdf.</h5>
+                <div class="input-group" id="BtnFile" >
+                </div>
+            </center>
+             <br>
+        </div>
+        <br>
+    </div>
+
+    <div class="row">
+            <script id="listTemplate" type="text/x-jQuery-tmpl">
+                <li class="list-group-item">
+                    <tr class="checkbox">
+                        {% raw %}
+                            <div class="row">
+                                <div class="col-sm-1">
+                                    <label
+                                    {{if Id != 0}}
+                                        title="Documento Transporte: ${Transporte}"
+                                    {{/if}}>
+                                        ${Transporte}
+                                    </label>
+                                </div>
+                                <div class="col-sm-1">
+                                    <label
+                                    {{if Id != 0}}
+                                        style="font-size: 70%;"
+                                        title="Fecha Documento: ${Fecha}"
+                                    {{/if}}>
+                                        ${Fecha}
+                                    </label>
+                                </div>
+                                <div class="col-sm-1">
+                                    <label
+                                    {{if Id != 0}}
+                                        style="font-size: 70%;"
+                                        title="Peso Bruto: ${Peso} - Volumen: ${Volumen}"
+                                    {{/if}}>
+                                        ${Peso}<br>
+                                        ${Volumen}
+                                    </label>
+                                </div>
+                                <div class="col-sm-1">
+                                    <label
+                                    {{if Id != 0}}
+                                        title="Bultos Documentados: ${Unidades}"
+                                    {{/if}}>
+                                        ${Unidades}
+                                    </label>
+                                </div>
+                                <div class="col-sm-1">
+                                    <label
+                                    {{if Id != 0}}
+                                        title="Bultos No Documentados: ${UnidadesExtra}"
+                                    {{/if}}>
+                                        ${UnidadesExtra}
+                                    </label>
+                                </div>
+                                <div class="col-sm-1">
+                                    <label
+                                    {{if Id != 0}}
+                                        style="font-size: 70%;"
+                                        title="Fecha De Registro: ${CreadoTitle}"
+                                    {{/if}}>
+                                        ${Creado}
+                                    </label>
+                                </div>
+                                <div class="col-sm-6">
+                                    {{if Id!=0}}
+                                        {{if EtiquetadoIniciado == 1}}
+                                            <div class="col-sm-4">
+                                                <a class="info-button" href="/ShowCreateUnDocumentedPackage/${Id}"
+                                                title="Finaliza toda operacion sobre este Packing List como poder crear contenedores, agregar o editar información por bulto o agregar o quitar unidades de empaque"
+                                                >
+                                                    <span style="font-size: 70%;">
+                                                        Crear bulto no documentado
+                                                    </span>
+                                                </a>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <a class="carrot-button" href="/ShowLabelMaterial/${Id}"
+                                                title="Ir a vista donde podemos ver o agregar contenedores a este Packing List y crear etiquetas de unidad de empaque"
+                                                >
+                                                    <span style="font-size: 80%;">
+                                                        Etiquetar material
+                                                    </span>
+                                                </a>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <a class="success-button" href="/ShowFinishPackingList/${Id}"
+                                                title="Finaliza toda operacion sobre este Packing List como poder crear contenedores, agregar o editar información por bulto o agregar o quitar unidades de empaque"
+                                                >
+                                                    <span style="font-size: 80%;">
+                                                        Finalizar packing list
+                                                    </span>
+                                                </a>
+                                            </div>
+                                        {{else EtiquetadoIniciado == 0}}
+                                            <div class="col-sm-6">
+                                                <a class="inverse-button" href="/ShowAddPackageInformation/${Id}"
+                                                title="Agregar información: BULTO N. => Productos en bulto"
+                                                >
+                                                    <span style="font-size: 80%;">
+                                                        Agregar información por bulto
+                                                    </span>
+                                                </a>
+                                                <a class="info-button" href="/ShowCreateUnDocumentedPackage/${Id}" style="margin-top: 10px;"
+                                                title="Finaliza toda operacion sobre este Packing List como poder crear contenedores, agregar o editar información por bulto o agregar o quitar unidades de empaque"
+                                                >
+                                                    <span style="font-size: 80%;">
+                                                        Crear bulto no documentado
+                                                    </span>
+                                                </a>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <div class="input-group">
+                                                    <span class="input-group-btn"></span>
+                                                    <span class="btn-file btn primary-button" style="font-size: 80%;"
+                                                    onclick="GetIdFile(this)" data-Id="${Id}" data-Packing="${Transporte}">
+                                                        Cargar Referencias con Excel &hellip; <input type="file" id="filexlsx" name="file" multiple>
+                                                    </span>
+                                                </div>
+                                                <a class="warning-button" onclick="StartTagging(this)"
+                                                data-Transport="${Transporte}" data-id=${Id} style="margin-top: 10px;"
+                                                title="Al realizar esta acción ya no podremos editar la información principal ni la información de sus bultos documentados o eliminar el packing list: ${Transporte}"
+                                                >
+                                                    <span style="font-size: 80%;">
+                                                        Empezar etiquetado
+                                                    </span>
+                                                </a>
+                                            </div>
+
+                                            <div class="col-sm-1">
+                                                <a type="submit" onclick="Edit(this)" title="Editar" style="float: right;"
+                                                data-Transport="${Transporte}" data-Date="${Fecha}" data-Qty="${Peso}"
+                                                data-Vol="${Volumen}" data-Units="${Unidades}" data-id=${Id}>
+                                                    <span class="glyphicon glyphicon-pencil"></span>
+                                                </a>
+                                                <a type="submit" onclick="Delete(this)" title="Eliminar"
+                                                data-id=${Id} style="float: right; margin-top: 25px;" >
+                                                    <span class="glyphicon glyphicon-trash text-danger"></span>
+                                                </a>
+                                            </div>
+                                        {{/if}}
+                                    {{/if}}
+                                </div>
+                            </div>
+                        {% endraw %}
+                    </tr>
+                </li>
+            </script>
+
+
+            <div class="col-sm-12">
+
+                    <ul id="ulist" class="list-group">
+                    </ul>
+                    <ul class="pagination">
+                        // li we'll create dynamically
+                    </ul>
+
+            </div>
+
+            <input type="hidden" id="hdnStart" value="1"/>
+            <input type="hidden" id="hdnEnd" value="5"/>
+    </div>
+    <br>
+{% endblock %}
+{% block footer %}
+    {% include "warnings.html"%}
+
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="editModalLabel">Actualizar Información de Paking List de Entrada</h4>
+                </div>
+                <form>
+                    <div class="modal-body">
+                            <input type="hidden" class="form-control" id="idDoc">
+                            <div class="form-group row">
+                                <div class="col-sm-4">
+                                    <label for="message-text" class="control-label">Doc. Transporte:</label>
+                                    <input type="text" class="form-control" id="updatetransporte" name="updatetransporte" maxlength="20" readonly>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="message-text" class="control-label">Fecha:</label>
+                                    <input type="date" class="form-control" id="updatefecha" name="updatefecha" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="message-text" class="control-label">Peso bruto total (KG):</label>
+                                    <input type="number" class="form-control" id="updatepeso" name="updatepeso" min=".001" step="any" required>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-4">
+                                    <label for="message-text" class="control-label">Volumen (M3):</label>
+                                    <input type="number" class="form-control" id="updatevolumen" name="updatevolumen" min=".001" step="any" required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="message-text" class="control-label">Cantidad de bultos (UN):</label>
+                                    <input type="number" class="form-control" id="updateunidades" name="updateunidades" min="1" max="999" step="any" required>
+                                </div>
+                            </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="col-sm-offset-8 col-sm-2">
+                            <span class="inverse-button" data-dismiss="modal">Cerrar</span>
+                        </div>
+                        <div class="col-sm-2">
+                            <span id="btnUpdate" class="primary-button">Actualizar</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form role="form">
+                        <input type="hidden" class="form-control" id="deleteid">
+                    </form>
+                    <center>
+                        <h4 class="modal-title" style="color:#E74C3C;" id="deleteModalLabel">
+                            ¿Esta seguro de eliminar el registro?
+                        </h4>
+                    </center>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-sm-offset-8 col-sm-2">
+                        <span class="inverse-button" data-dismiss="modal">Cerrar</span>
+                    </div>
+                    <div class="col-sm-2">
+                        <span id="btnDelete" class="danger-button">Eliminar</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="AddedPDF" tabindex="-1" role="dialog" aria-labelledby="AddedPDFModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col-sm-offset-10 col-sm-2">
+                        <span class="success-button" data-dismiss="modal" onclick="location.reload();">Aceptar</span>
+                    </div>
+                    <br>
+                </div>
+                <div class="modal-body">
+                    <center>
+                        <h5 style="color: #27AE60;">
+                            Esta es la información que se agrego automaticamente al cargar el archivo PDF
+                        </h5>
+                    </center>
+                    <h5 style="color: #2980B9;">Información Primaria.</h5>
+                    <div class="row" id="Table1"></div>
+                    <br>
+                    <h5 style="color: #2980B9;">
+                        Información Secundaria.
+                    </h5>
+                    <div class="row" id="Table2"></div>
+                    <center>
+                        <h5 style="color: #E74C3C;">
+                            Si la información no es la correcta, lo que se tiene que hacer es dar click en el boton
+                            Aceptar buscar el registro la tabla de Packing List de entrada que se localiza en esta pantalla
+                            y eliminar el registro dando click en el bote de basura del registro a eliminar.
+                        </h5>
+                    </center>
+
+                </div>
+                <div class="modal-footer">
+                    <div class="col-sm-offset-10 col-sm-2">
+                        <span class="success-button" data-dismiss="modal" onclick="location.reload()">Aceptar</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="StartTaggingModal" tabindex="-1" role="dialog" aria-labelledby="StartTaggingModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form role="form">
+                        <input type="hidden" class="form-control" id="startid">
+                    </form>
+                    <center>
+                        <div style='font-size: 25px;' id="MsgStart">
+                        </div>
+                    </center>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-sm-offset-8 col-sm-2">
+                        <span class="inverse-button" data-dismiss="modal">Cancelar</span>
+                    </div>
+                    <div class="col-sm-2">
+                        <span id="btnStart" class="success-button">Aceptar</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </body>
+    </html>
+{% endblock %}
