@@ -1,4 +1,4 @@
-#!/home/gus/Proyectos/montakt/venv/bin/python2
+#!/home/gus/Proyectos/negocio/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
